@@ -296,6 +296,18 @@
         </div>
 
         <div class="card">
+            <h2>💾 Backup</h2>
+            <div class="input-group">
+                <button class="btn-primary" onclick="exportData()" style="flex:1">📥 Exportar</button>
+                <button class="btn-secondary" onclick="document.getElementById('importFile').click()" style="flex:1">📤 Importar</button>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                Exporta para guardar backup. Importa para restaurar dados.
+            </div>
+        </div>
+
+        <div class="card">
             <h2>🔍 Procurar</h2>
             <div class="input-group">
                 <input type="text" id="searchInput" placeholder="Procurar músicas...">
@@ -582,6 +594,92 @@
             document.getElementById(modalId).classList.remove('active');
             selectedIndex = -1;
             renderSongs();
+        }
+
+        // Exportar dados
+        function exportData() {
+            if (songs.length === 0) {
+                alert('Não há músicas para exportar!');
+                return;
+            }
+
+            const dataStr = JSON.stringify(songs, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const date = new Date().toISOString().split('T')[0];
+            link.download = `musicas_backup_${date}.json`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ Exportadas ${songs.length} músicas!`);
+        }
+
+        // Importar dados
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(imported)) {
+                        alert('❌ Ficheiro inválido!');
+                        return;
+                    }
+
+                    // Validar estrutura
+                    const valid = imported.every(song => 
+                        song.title && typeof song.title === 'string'
+                    );
+
+                    if (!valid) {
+                        alert('❌ Formato de ficheiro inválido!');
+                        return;
+                    }
+
+                    // Perguntar se quer substituir ou adicionar
+                    const action = confirm(
+                        `Encontradas ${imported.length} músicas.\n\n` +
+                        `OK = Substituir todas\n` +
+                        `Cancelar = Adicionar às existentes`
+                    );
+
+                    if (action) {
+                        // Substituir
+                        songs = imported;
+                    } else {
+                        // Adicionar
+                        imported.forEach(song => {
+                            songs.push({
+                                ...song,
+                                id: Date.now() + Math.random()
+                            });
+                        });
+                    }
+
+                    reindexSongs();
+                    saveSongs();
+                    clearSearch();
+                    renderSongs();
+                    
+                    alert(`✅ Importadas ${imported.length} músicas com sucesso!`);
+                } catch (error) {
+                    alert('❌ Erro ao ler ficheiro: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Limpar input para permitir reimportar o mesmo ficheiro
+            event.target.value = '';
         }
 
         // Event listeners
