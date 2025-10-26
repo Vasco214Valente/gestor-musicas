@@ -2,354 +2,192 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gestor de Músicas com Partituras</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor de Músicas com Playlists</title>
 <style>
-    * {margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-    body {font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background: linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%); min-height:100vh; padding:10px; overflow-x:hidden;}
-    .container {max-width:100%; padding-bottom:80px;}
-    .header {background:#6b46c1;color:white;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
-    .header h1 {font-size:24px; margin-bottom:8px;}
-    .header .count {font-size:14px; opacity:0.9;}
-    .card {background:white;border-radius:12px;padding:15px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-    .card h2 {font-size:18px;margin-bottom:12px;color:#333;}
-    .input-group {display:flex;gap:8px;margin-bottom:10px;}
-    input[type="text"], input[type="number"], input[type="file"] {flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;width:100%;}
-    button {padding:12px 20px;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
-    button:active {transform: scale(0.95);}
-    .btn-primary {background:#6b46c1;color:white;}
-    .btn-secondary {background:#8b5cf6;color:white;}
-    .btn-edit {background:#3b82f6;color:white;padding:8px 12px;font-size:12px;}
-    .btn-delete {background:#ef4444;color:white;padding:8px 12px;font-size:12px;}
-    .btn-clear {background:#6b7280;color:white;padding:8px 12px;font-size:12px;}
-    .search-result {font-size:13px;color:#666;margin-top:8px;}
-    .search-result.success {color:#22c55e;}
-    .search-result.error {color:#ef4444;}
-    .song-list {max-height:50vh;overflow-y:auto;}
-    .song-item {display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px;}
-    .song-item.selected {background:#e0e7ff;border:2px solid #6b46c1;}
-    .song-index {min-width:40px;height:40px;background:#6b46c1;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;flex-shrink:0;}
-    .song-title {flex:1;font-size:14px;color:#333;word-break:break-word;}
-    .song-actions {display:flex;gap:5px;flex-shrink:0;}
-    .empty-state {text-align:center;padding:40px 20px;color:#999;}
-    .empty-state .icon {font-size:48px;margin-bottom:10px;}
-    .action-bar {position:fixed;bottom:0;left:0;right:0;background:white;padding:12px;box-shadow:0 -2px 10px rgba(0,0,0,0.1);display:flex;gap:8px;z-index:100;}
-    .action-bar button {flex:1;font-size:13px;}
-    .modal {display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
-    .modal.active {display:flex;}
-    .modal-content {background:white;border-radius:12px;padding:20px;max-width:400px;width:100%;}
-    .modal-content h3 {margin-bottom:15px;font-size:18px;}
-    .modal-content .info {background:#f3f4f6;padding:10px;border-radius:6px;margin-bottom:15px;font-size:14px;}
-    .modal-buttons {display:flex;gap:10px;margin-top:15px;}
-    .info-text {text-align:center;padding:10px;font-size:13px;color:#666;}
-    @media (max-width:480px) {.song-actions button{padding:6px 10px;font-size:11px;} .action-bar button{font-size:12px;padding:10px;}}
+/* --- Styles básicos existentes --- */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);min-height:100vh;overflow-x:hidden;padding-bottom:60px;}
+.header{background:#6b46c1;color:white;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
+.header h1{font-size:24px;margin-bottom:8px;}
+.header .count{font-size:14px;opacity:0.9;}
+.container{padding:10px;}
+.card{background:white;border-radius:12px;padding:15px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.song-list{max-height:50vh;overflow-y:auto;margin-top:10px;}
+.song-item{display:flex;align-items:center;gap:12px;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:8px;cursor:pointer;}
+.song-item.selected{background:#e0e7ff;border:2px solid #6b46c1;}
+.song-index{min-width:40px;height:40px;background:#6b46c1;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;flex-shrink:0;}
+.song-title{flex:1;word-break:break-word;}
+button{padding:10px;border:none;border-radius:8px;cursor:pointer;}
+.btn-primary{background:#6b46c1;color:white;}
+.btn-secondary{background:#8b5cf6;color:white;}
+.btn-edit{background:#3b82f6;color:white;padding:6px 10px;font-size:12px;}
+.btn-delete{background:#ef4444;color:white;padding:6px 10px;font-size:12px;}
+.tabs{display:flex;gap:2px;margin-bottom:10px;}
+.tab{flex:1;text-align:center;padding:10px;background:#ddd;cursor:pointer;border-radius:8px 8px 0 0;}
+.tab.active{background:#6b46c1;color:white;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.playlist-item{background:#f0f4ff;padding:8px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.input-group{display:flex;gap:8px;margin-bottom:10px;}
+input[type=text]{flex:1;padding:8px;border-radius:6px;border:1px solid #ccc;}
 </style>
 </head>
 <body>
 <div class="header">
-    <h1>🎵 Índice de Músicas</h1>
+    <h1>🎵 Gestor de Músicas</h1>
     <div class="count" id="songCount">Total: 0 músicas</div>
 </div>
 
 <div class="container">
-    <div class="card">
-        <h2>Adicionar Música</h2>
-        <div class="input-group">
-            <input type="text" id="newSongTitle" placeholder="Título da música...">
-            <input type="file" id="newSongPDF" accept="application/pdf">
-            <button class="btn-primary" onclick="addSong()">➕ Adicionar</button>
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('main')">Lista Principal</div>
+        <div class="tab" onclick="showTab('playlists')">Playlists</div>
+    </div>
+
+    <!-- Aba Lista Principal -->
+    <div class="tab-content active" id="main">
+        <div class="card">
+            <h2>Adicionar Música</h2>
+            <div class="input-group">
+                <input type="text" id="newSongTitle" placeholder="Título da música...">
+                <button class="btn-primary" onclick="addSong()">➕ Adicionar</button>
+            </div>
+        </div>
+        <div class="card">
+            <h2>Coleção</h2>
+            <div class="song-list" id="songList"></div>
         </div>
     </div>
 
-    <div class="card">
-        <h2>💾 Backup</h2>
-        <div class="input-group">
-            <button class="btn-primary" onclick="exportData()" style="flex:1">📥 Exportar</button>
-            <button class="btn-secondary" onclick="document.getElementById('importFile').click()" style="flex:1">📤 Importar</button>
+    <!-- Aba Playlists -->
+    <div class="tab-content" id="playlists">
+        <div class="card">
+            <h2>Criar Playlist</h2>
+            <div class="input-group">
+                <input type="text" id="newPlaylistName" placeholder="Nome da playlist...">
+                <button class="btn-primary" onclick="createPlaylist()">➕ Criar</button>
+            </div>
         </div>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-        <div style="font-size: 12px; color: #666; margin-top: 8px;">
-            Exporta para guardar backup. Importa para restaurar dados.
+        <div class="card">
+            <h2>Playlists Existentes</h2>
+            <div id="playlistList"></div>
         </div>
-    </div>
-
-    <div class="card">
-        <h2>🔍 Procurar</h2>
-        <div class="input-group">
-            <input type="text" id="searchInput" placeholder="Procurar músicas...">
-            <button class="btn-clear" onclick="clearSearch()">❌</button>
-        </div>
-        <div class="search-result" id="searchResult"></div>
-    </div>
-
-    <div class="card">
-        <h2>Coleção (ordem de inserção)</h2>
-        <div class="song-list" id="songList"></div>
-    </div>
-
-    <div class="info-text">
-        Os índices seguem a ordem de inserção das músicas
-    </div>
-</div>
-
-<div class="action-bar">
-    <button class="btn-edit" onclick="editSelected()">✏️ Editar</button>
-    <button class="btn-secondary" onclick="changeIndexModal()">🔢 Índice</button>
-    <button class="btn-delete" onclick="removeSelected()">❌ Remover</button>
-    <button class="btn-primary" onclick="openSelectedPDF()">📄 Partitura</button>
-</div>
-
-<!-- Modal Editar Música -->
-<div class="modal" id="editModal">
-    <div class="modal-content">
-        <h3>Editar Música</h3>
-        <div class="info" id="editInfo"></div>
-        <input type="text" id="editTitle" placeholder="Novo título...">
-        <input type="file" id="editPDF" accept="application/pdf">
-        <div class="modal-buttons">
-            <button class="btn-primary" onclick="saveEdit()" style="flex:1">💾 Guardar</button>
-            <button class="btn-clear" onclick="closeModal('editModal')" style="flex:1">❌ Cancelar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Mudar Índice -->
-<div class="modal" id="indexModal">
-    <div class="modal-content">
-        <h3>Mudar Índice</h3>
-        <div class="info" id="indexInfo"></div>
-        <input type="number" id="newIndex" placeholder="Novo índice..." min="1">
-        <div class="modal-buttons">
-            <button class="btn-primary" onclick="saveIndex()" style="flex:1">💾 Guardar</button>
-            <button class="btn-clear" onclick="closeModal('indexModal')" style="flex:1">❌ Cancelar</button>
+        <div class="card">
+            <h2>Músicas na Playlist Selecionada</h2>
+            <div class="song-list" id="playlistSongs"></div>
         </div>
     </div>
 </div>
 
 <script>
+// --- Dados ---
 let songs = [];
-let filteredSongs = [];
-let selectedIndex = -1;
+let playlists = {}; // {playlistName: [songIds]}
+let selectedPlaylist = null;
 
-function loadSongs() {
+// --- Tabs ---
+function showTab(id){
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`.tab[onclick*="${id}"]`).classList.add('active');
+}
+
+// --- Lista Principal ---
+function loadSongs(){
     const saved = localStorage.getItem('musicCollection');
-    if(saved) songs = JSON.parse(saved);
+    if(saved) songs=JSON.parse(saved);
     renderSongs();
+    renderPlaylists();
 }
 
-function saveSongs() {
-    localStorage.setItem('musicCollection', JSON.stringify(songs));
+function saveSongs(){
+    localStorage.setItem('musicCollection',JSON.stringify(songs));
 }
 
-function reindexSongs() {
-    songs.forEach((song,i)=>song.index=i+1);
-}
-
-function addSong() {
-    const input = document.getElementById('newSongTitle');
-    const fileInput = document.getElementById('newSongPDF');
-    const title = input.value.trim();
-    if(!title){alert('Por favor, insira um título!'); return;}
-    const file = fileInput.files[0];
-    if(file && file.type !== 'application/pdf'){alert('O ficheiro deve ser PDF'); return;}
-
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            songs.push({
-                title,
-                index: songs.length+1,
-                id: Date.now(),
-                pdfData: e.target.result.split(',')[1]
-            });
-            finalizeAdd();
-        }
-        reader.readAsDataURL(file);
-    }else{
-        songs.push({
-            title,
-            index: songs.length+1,
-            id: Date.now(),
-            pdfData: null
-        });
-        finalizeAdd();
-    }
-}
-
-function finalizeAdd(){
-    reindexSongs();
+function addSong(){
+    const title = document.getElementById('newSongTitle').value.trim();
+    if(!title) return alert('Insira um título!');
+    songs.push({id:Date.now()+Math.random(), title});
     saveSongs();
     document.getElementById('newSongTitle').value='';
-    document.getElementById('newSongPDF').value='';
-    clearSearch();
-    renderSongs();
-}
-
-function searchSongs(){
-    const query = document.getElementById('searchInput').value.trim().toLowerCase();
-    const resultEl = document.getElementById('searchResult');
-    if(!query){filteredSongs=[];resultEl.textContent=''; renderSongs(); return;}
-    filteredSongs = songs.filter(s=>s.title.toLowerCase().includes(query));
-    if(filteredSongs.length===0){resultEl.textContent='Nenhum resultado encontrado'; resultEl.className='search-result error';}
-    else{resultEl.textContent=`Encontradas ${filteredSongs.length} música(s)`; resultEl.className='search-result success';}
-    renderSongs();
-}
-
-function clearSearch(){
-    document.getElementById('searchInput').value='';
-    filteredSongs=[];
-    document.getElementById('searchResult').textContent='';
     renderSongs();
 }
 
 function renderSongs(){
     const listEl = document.getElementById('songList');
-    const countEl = document.getElementById('songCount');
-    const displaySongs = filteredSongs.length>0?filteredSongs:songs;
-    countEl.textContent = `Total: ${songs.length} músicas`;
-    if(songs.length===0){listEl.innerHTML=`<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma música adicionada ainda</p><p style="font-size:12px;margin-top:8px;">Comece por adicionar a sua primeira música acima</p></div>`; return;}
-    listEl.innerHTML = displaySongs.map((song,index)=>`
-        <div class="song-item ${selectedIndex===index?'selected':''}" onclick="selectSong(${index})">
-            <div class="song-index">${song.index}</div>
-            <div class="song-title">${song.title}</div>
+    listEl.innerHTML = songs.map((s,i)=>`
+        <div class="song-item" onclick="selectSong(${i})">
+            <div class="song-index">${i+1}</div>
+            <div class="song-title">${s.title}</div>
+        </div>`).join('');
+    document.getElementById('songCount').textContent = `Total: ${songs.length} músicas`;
+}
+
+function selectSong(index){
+    const song = songs[index];
+    if(selectedPlaylist){
+        // Adiciona à playlist
+        const pl = playlists[selectedPlaylist];
+        if(!pl.includes(song.id)){
+            pl.push(song.id);
+            renderPlaylistSongs();
+        } else alert('Música já existe na playlist!');
+    }
+}
+
+// --- Playlists ---
+function createPlaylist(){
+    const name = document.getElementById('newPlaylistName').value.trim();
+    if(!name) return alert('Nome inválido');
+    if(playlists[name]) return alert('Já existe');
+    playlists[name]=[];
+    selectedPlaylist = name;
+    document.getElementById('newPlaylistName').value='';
+    renderPlaylists();
+    renderPlaylistSongs();
+}
+
+function renderPlaylists(){
+    const listEl = document.getElementById('playlistList');
+    listEl.innerHTML = Object.keys(playlists).map(pl=>`
+        <div class="playlist-item">
+            <span onclick="selectPlaylist('${pl}')">${pl}</span>
+            <button onclick="deletePlaylist('${pl}')">❌</button>
         </div>
     `).join('');
 }
 
-function selectSong(index){
-    selectedIndex = selectedIndex===index?-1:index;
-    renderSongs();
+function selectPlaylist(name){
+    selectedPlaylist = name;
+    renderPlaylistSongs();
 }
 
-function editSelected(){
-    if(selectedIndex===-1){alert('Selecione uma música para editar!'); return;}
-    const displaySongs = filteredSongs.length>0?filteredSongs:songs;
-    const song = displaySongs[selectedIndex];
-    document.getElementById('editInfo').textContent = `Música: ${song.title}`;
-    document.getElementById('editTitle').value = song.title;
-    document.getElementById('editPDF').value='';
-    document.getElementById('editModal').classList.add('active');
-}
-
-function saveEdit(){
-    const newTitle = document.getElementById('editTitle').value.trim();
-    if(!newTitle){alert('O título não pode estar vazio!'); return;}
-    const fileInput = document.getElementById('editPDF');
-    const file = fileInput.files[0];
-
-    const displaySongs = filteredSongs.length>0?filteredSongs:songs;
-    const song = displaySongs[selectedIndex];
-    const mainIndex = songs.findIndex(s=>s.id===song.id);
-    songs[mainIndex].title = newTitle;
-
-    if(file){
-        if(file.type!=='application/pdf'){alert('O ficheiro deve ser PDF'); return;}
-        const reader = new FileReader();
-        reader.onload = function(e){
-            songs[mainIndex].pdfData = e.target.result.split(',')[1];
-            finalizeEdit();
-        }
-        reader.readAsDataURL(file);
-    }else{
-        finalizeEdit();
+function deletePlaylist(name){
+    if(confirm(`Remover playlist ${name}?`)){
+        delete playlists[name];
+        if(selectedPlaylist===name) selectedPlaylist=null;
+        renderPlaylists();
+        renderPlaylistSongs();
     }
 }
 
-function finalizeEdit(){saveSongs();closeModal('editModal');if(filteredSongs.length>0) searchSongs(); else renderSongs();}
-
-function changeIndexModal(){
-    if(selectedIndex===-1){alert('Selecione uma música para mudar o índice!'); return;}
-    if(filteredSongs.length>0){alert('Limpe a procura primeiro para reorganizar músicas'); return;}
-    const song = songs[selectedIndex];
-    document.getElementById('indexInfo').innerHTML = `<strong>Música:</strong> ${song.title}<br><strong>Índice atual:</strong> ${song.index}<br><strong>Novo índice (1-${songs.length}):</strong>`;
-    document.getElementById('newIndex').value='';
-    document.getElementById('newIndex').max = songs.length;
-    document.getElementById('indexModal').classList.add('active');
+function renderPlaylistSongs(){
+    const listEl = document.getElementById('playlistSongs');
+    if(!selectedPlaylist){ listEl.innerHTML='<i>Selecione uma playlist</i>'; return; }
+    const ids = playlists[selectedPlaylist];
+    listEl.innerHTML = ids.map((id,i)=>{
+        const song = songs.find(s=>s.id===id);
+        if(!song) return '';
+        return `<div class="song-item">
+            <div class="song-index">${i+1}</div>
+            <div class="song-title">${song.title}</div>
+        </div>`;
+    }).join('');
 }
 
-function saveIndex(){
-    const newIdx = parseInt(document.getElementById('newIndex').value);
-    if(isNaN(newIdx)||newIdx<1||newIdx>songs.length){alert(`O índice deve estar entre 1 e ${songs.length}!`); return;}
-    const song = songs.splice(selectedIndex,1)[0];
-    songs.splice(newIdx-1,0,song);
-    reindexSongs();
-    saveSongs();
-    closeModal('indexModal');
-    selectedIndex = newIdx-1;
-    renderSongs();
-}
-
-function removeSelected(){
-    if(selectedIndex===-1){alert('Selecione uma música para remover!'); return;}
-    const displaySongs = filteredSongs.length>0?filteredSongs:songs;
-    const song = displaySongs[selectedIndex];
-    if(!confirm(`Remover '${song.title}'?`)) return;
-    songs = songs.filter(s=>s.id!==song.id);
-    reindexSongs();
-    saveSongs();
-    selectedIndex=-1;
-    if(filteredSongs.length>0) searchSongs(); else renderSongs();
-}
-
-function closeModal(modalId){document.getElementById(modalId).classList.remove('active'); selectedIndex=-1; renderSongs();}
-
-function exportData(){
-    if(songs.length===0){alert('Não há músicas para exportar!'); return;}
-    const dataStr = JSON.stringify(songs,null,2);
-    const dataBlob = new Blob([dataStr],{type:'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    const date = new Date().toISOString().split('T')[0];
-    link.download = `musicas_backup_${date}.json`;
-    document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
-    alert(`✅ Exportadas ${songs.length} músicas!`);
-}
-
-function importData(event){
-    const file = event.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e){
-        try{
-            const imported = JSON.parse(e.target.result);
-            if(!Array.isArray(imported)){alert('❌ Ficheiro inválido!'); return;}
-            const valid = imported.every(s=>s.title && typeof s.title==='string'); if(!valid){alert('❌ Formato de ficheiro inválido!'); return;}
-            const action = confirm(`Encontradas ${imported.length} músicas.\nOK = Substituir todas\nCancelar = Adicionar às existentes`);
-            if(action){songs=imported;}else{imported.forEach(s=>songs.push({...s,id:Date.now()+Math.random()}));}
-            reindexSongs(); saveSongs(); clearSearch(); renderSongs();
-            alert(`✅ Importadas ${imported.length} músicas com sucesso!`);
-        }catch(err){alert('❌ Erro ao ler ficheiro: '+err.message);}
-    };
-    reader.readAsText(file);
-    event.target.value='';
-}
-
-function openSelectedPDF(){
-    if(selectedIndex===-1){alert('Selecione uma música!'); return;}
-    const displaySongs = filteredSongs.length>0?filteredSongs:songs;
-    const song = displaySongs[selectedIndex];
-    if(!song.pdfData){alert('Sem partitura associada!'); return;}
-    const blob = b64toBlob(song.pdfData,'application/pdf');
-    const url = URL.createObjectURL(blob);
-    window.open(url,'_blank');
-}
-
-function b64toBlob(b64Data,contentType='',sliceSize=512){
-    const byteCharacters = atob(b64Data); const byteArrays=[];
-    for(let offset=0;offset<byteCharacters.length;offset+=sliceSize){
-        const slice = byteCharacters.slice(offset,offset+sliceSize);
-        const byteNumbers=new Array(slice.length);
-        for(let i=0;i<slice.length;i++) byteNumbers[i]=slice.charCodeAt(i);
-        byteArrays.push(new Uint8Array(byteNumbers));
-    }
-    return new Blob(byteArrays,{type:contentType});
-}
-
-document.getElementById('newSongTitle').addEventListener('keypress',(e)=>{if(e.key==='Enter') addSong();});
-document.getElementById('searchInput').addEventListener('input',searchSongs);
-document.getElementById('editTitle').addEventListener('keypress',(e)=>{if(e.key==='Enter') saveEdit();});
-document.getElementById('newIndex').addEventListener('keypress',(e)=>{if(e.key==='Enter') saveIndex();});
-
+// --- Inicialização ---
 loadSongs();
 </script>
 </body>
